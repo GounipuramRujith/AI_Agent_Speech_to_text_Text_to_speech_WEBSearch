@@ -3,124 +3,311 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🤖 AI Agent</title>
+<title>Shivani AI</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; }
+
   body {
-    background-color: #0e1f45;
+    margin: 0;
+    height: 100vh;
+    font-family: "Inter", sans-serif;
+    color: #111111;
+    background: #ffffff;
+  }
+
+  .app {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+
+  .sidebar {
+    width: 280px;
+    border-right: 1px solid #e5e7eb;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .sidebar-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 0.2px;
+  }
+
+  .new-chat-btn {
+    border: 1px solid #111111;
+    background: #111111;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 12px;
+  }
+
+  .history-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-item {
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    background: #ffffff;
+    font-size: 14px;
+  }
+
+  .history-item.active {
+    border-color: #111111;
+    background: #f3f4f6;
+    font-weight: 600;
+  }
+
+  .main {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    color: white;
-    font-family: "Inter", sans-serif;
-  }
-  .chat-wrapper {
-    background-color: #1e293b;
-    width: 450px;
-    border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    background: #ffffff;
+  }
+
+  .chat-wrapper {
+    width: min(900px, 100%);
+    height: 90vh;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
-    height: 600px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
   }
+
   .title {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 10px;
+    padding: 18px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 22px;
+    font-weight: 700;
+    color: #111111;
   }
+
   .chat-box {
     flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 15px;
+    padding: 16px;
   }
+
   .msg {
-    padding: 10px 15px;
-    border-radius: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
     max-width: 75%;
     word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.5;
   }
+
   .user {
     align-self: flex-end;
-    background-color: #2563eb;
+    border: 1px solid #111111;
+    background: #111111;
+    color: #ffffff;
   }
+
   .ai {
     align-self: flex-start;
-    background-color: #334155;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #111111;
   }
+
   .input-row {
     display: flex;
     gap: 8px;
+    padding: 16px;
+    border-top: 1px solid #e5e7eb;
   }
+
   input {
     flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
     outline: none;
-    background-color: #334155;
-    color: white;
+    background: #ffffff;
+    color: #111111;
+    font-size: 14px;
   }
+
   button {
-    border: none;
-    background-color: #3b82f6;
-    color: white;
-    border-radius: 8px;
-    padding: 10px 15px;
+    border: 1px solid #111111;
+    background: #111111;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 10px 14px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
   }
-  button:hover { background-color: #2563eb; }
+
+  button:hover { opacity: 0.9; }
 </style>
 </head>
 <body>
-  <div class="chat-wrapper">
-    <div class="title">🤖 AI Agent Chat</div>
-    <div id="chat-box" class="chat-box"></div>
-    <div class="input-row">
-      <input id="query" placeholder="Type your question...">
-      <button onclick="sendMessage()">Send</button>
-      <button onclick="startVoice()">🎤</button>
-    </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-title">Chat History</div>
+      <button class="new-chat-btn" onclick="startNewChat()">Search New</button>
+      <div id="history-list" class="history-list"></div>
+    </aside>
+
+    <main class="main">
+      <div class="chat-wrapper">
+        <div class="title">Shivani AI</div>
+        <div id="chat-box" class="chat-box"></div>
+        <div class="input-row">
+          <input id="query" placeholder="Ask anything..." onkeydown="if(event.key==='Enter'){sendMessage();}">
+          <button onclick="sendMessage()">Send</button>
+          <button onclick="startVoice()">🎤 Mic</button>
+        </div>
+      </div>
+    </main>
   </div>
 
 <script>
 const chatBox = document.getElementById("chat-box");
+const historyList = document.getElementById("history-list");
 
-function addMessage(text, sender) {
+let chats = [];
+let currentChatId = null;
+
+function createChat(title = "New Chat") {
+  const chat = {
+    id: Date.now() + Math.random(),
+    title,
+    messages: []
+  };
+  chats.unshift(chat);
+  currentChatId = chat.id;
+  renderHistory();
+  renderCurrentChat();
+}
+
+function getCurrentChat() {
+  return chats.find(c => c.id === currentChatId);
+}
+
+function renderHistory() {
+  historyList.innerHTML = "";
+  chats.forEach(chat => {
+    const item = document.createElement("div");
+    item.className = "history-item" + (chat.id === currentChatId ? " active" : "");
+    item.textContent = chat.title;
+    item.onclick = () => {
+      currentChatId = chat.id;
+      renderHistory();
+      renderCurrentChat();
+    };
+    historyList.appendChild(item);
+  });
+}
+
+function renderCurrentChat() {
+  chatBox.innerHTML = "";
+  const chat = getCurrentChat();
+  if (!chat) return;
+  for (const msg of chat.messages) {
+    addMessage(msg.text, msg.sender, false);
+  }
+}
+
+function addMessage(text, sender, persist = true) {
   const div = document.createElement("div");
   div.classList.add("msg", sender);
   div.textContent = text;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  if (persist) {
+    const chat = getCurrentChat();
+    if (chat) {
+      chat.messages.push({ text, sender });
+      if (chat.title === "New Chat" && sender === "user") {
+        chat.title = text.slice(0, 28) || "New Chat";
+        renderHistory();
+      }
+    }
+  }
+
+  return div;
 }
 
-// 💬 Send Text Message
+async function showAiTyped(text) {
+  const aiBubble = addMessage("", "ai");
+  const chat = getCurrentChat();
+  if (chat && chat.messages.length) {
+    chat.messages[chat.messages.length - 1].text = "";
+  }
+
+  for (const ch of text) {
+    aiBubble.textContent += ch;
+    if (chat && chat.messages.length) {
+      chat.messages[chat.messages.length - 1].text = aiBubble.textContent;
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+    await new Promise(resolve => setTimeout(resolve, 18));
+  }
+}
+
+async function playAudioAndType(text) {
+  const aiBubble = addMessage("", "ai");
+  const chat = getCurrentChat();
+  if (chat && chat.messages.length) {
+    chat.messages[chat.messages.length - 1].text = "";
+  }
+
+  const audio = new Audio("/static/response.mp3?t=" + Date.now());
+  audio.play().catch(() => console.log("Autoplay blocked"));
+
+  for (const ch of text) {
+    aiBubble.textContent += ch;
+    if (chat && chat.messages.length) {
+      chat.messages[chat.messages.length - 1].text = aiBubble.textContent;
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+    await new Promise(resolve => setTimeout(resolve, 18));
+  }
+}
+
 async function sendMessage() {
   const input = document.getElementById("query");
   const text = input.value.trim();
   if (!text) return;
+
   addMessage(text, "user");
   input.value = "";
-  
+
   const res = await fetch("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query: text })
   });
-  
-  const data = await res.json();
-  addMessage(data.response || "⚠️ Could not fetch a response.", "ai");
 
-  // 🔊 Play AI Voice Output
-  const audio = new Audio("/static/response.mp3?t=" + Date.now());
-  audio.play().catch(() => console.log("Autoplay blocked"));
+  const data = await res.json();
+  await showAiTyped(data.response || "⚠️ Could not fetch a response.");
 }
 
-// 🎤 Voice Input (Speech-to-Text)
 async function startVoice() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -132,31 +319,39 @@ async function startVoice() {
       const blob = new Blob(audioChunks, { type: "audio/wav" });
       const formData = new FormData();
       formData.append("file", blob, "voice.wav");
-      
-      addMessage("🎙 Listening...", "ai");
+
+      const loadingBubble = addMessage("🎙 Listening...", "ai");
 
       const res = await fetch("/voice-chat", {
         method: "POST",
         body: formData
       });
 
-      const data = await res.json();
-      addMessage("🗣 " + data.query_text, "user");
-      addMessage(data.response || "⚠️ No response.", "ai");
+      loadingBubble.remove();
+      const chat = getCurrentChat();
+      if (chat && chat.messages.length) {
+        chat.messages.pop();
+      }
 
-      // 🔊 Play AI Voice Output
-      const audio = new Audio("/static/response.mp3");
-      audio.play().catch(() => console.log("Autoplay blocked"));
+      const data = await res.json();
+      addMessage("🗣 " + (data.query_text || ""), "user");
+      await playAudioAndType(data.response || "⚠️ No response.");
     };
 
     mediaRecorder.start();
-    setTimeout(() => mediaRecorder.stop(), 5000); // 5s recording limit
+    setTimeout(() => mediaRecorder.stop(), 5000);
   } catch (err) {
     alert("🎙 Microphone access error: " + err.message);
   }
 }
+
+function startNewChat() {
+  const confirmed = confirm("Start a new search chat?");
+  if (!confirmed) return;
+  createChat("New Chat");
+}
+
+createChat("New Chat");
 </script>
 </body>
 </html>
-
-

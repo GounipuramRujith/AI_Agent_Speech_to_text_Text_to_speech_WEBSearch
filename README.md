@@ -40,6 +40,15 @@ Set your Serper API key:
 export SERPER_API_KEY="your_serper_api_key"
 ```
 
+Optionally, use [Tavily](https://tavily.com/) as your search provider:
+
+```bash
+export TAVILY_API_KEY="tvly-your_tavily_api_key"
+export SEARCH_PROVIDER="tavily"   # default is "serper"
+```
+
+The `SEARCH_PROVIDER` variable accepts `serper` (default) or `tavily`.
+
 ## Run
 
 ```bash

@@ -25,6 +25,7 @@ import time
 import hashlib
 import re
 from typing import Any, Dict, List, Optional, Union
+from tavily import TavilyClient
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 print(f"🚀 Using device: {device}")
@@ -273,12 +274,70 @@ def google_search_and_embed(query: str) -> Dict[str, Any]:
         return {"vector_db": None, "direct_answer": direct_answer}
 
 
+def tavily_search_and_embed(query: str) -> Dict[str, Any]:
+    tavily_api_key = os.getenv("TAVILY_API_KEY", "").strip()
+    if not tavily_api_key:
+        print("⚠️ TAVILY_API_KEY not set. Web search may fail.")
+        return {"vector_db": None, "direct_answer": None}
+
+    try:
+        client = TavilyClient(api_key=tavily_api_key)
+        response = client.search(
+            query=query,
+            max_results=5,
+            search_depth="advanced",
+            include_raw_content=True,
+        )
+    except Exception as e:
+        print(f"⚠️ Tavily search request failed: {e}")
+        return {"vector_db": None, "direct_answer": None}
+
+    results = response.get("results", [])
+
+    # Extract direct answer from the top result snippet
+    direct_answer = None
+    if results and results[0].get("content"):
+        direct_answer = results[0]["content"].strip()
+
+    # Build text corpus from raw content or content snippets
+    all_text = ""
+    for result in results[:5]:
+        raw = result.get("raw_content") or result.get("content") or ""
+        if raw:
+            all_text += raw.strip() + "\n"
+
+    if not all_text:
+        return {"vector_db": None, "direct_answer": direct_answer}
+
+    chunking = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    docs = chunking.create_documents([all_text])
+
+    embedding = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+    try:
+        return {
+            "vector_db": FAISS.from_documents(docs, embedding),
+            "direct_answer": direct_answer,
+        }
+    except ImportError as e:
+        print(f"⚠️ FAISS not available, continuing without vector DB: {e}")
+        return {"vector_db": None, "direct_answer": direct_answer}
+
+
+def search_and_embed(query: str) -> Dict[str, Any]:
+    provider = os.getenv("SEARCH_PROVIDER", "serper").strip().lower()
+    if provider == "tavily":
+        return tavily_search_and_embed(query)
+    return google_search_and_embed(query)
+
+
 async def run_agent(query: str, speak_response: bool = False) -> str:
     print("🟢 run_agent() called")
     if not query or not query.strip():
         return "I didn't catch that. Could you repeat?"
 
-    search_data = google_search_and_embed(query)
+    search_data = search_and_embed(query)
     vector_db = search_data.get("vector_db")
     direct_answer = search_data.get("direct_answer")
 

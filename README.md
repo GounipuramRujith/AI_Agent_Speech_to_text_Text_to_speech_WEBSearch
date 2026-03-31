@@ -64,3 +64,8 @@ Open:
 - Typed input returns text response (no auto speech playback).
 - Mic input uses speech-to-speech flow (voice in, voice + text out).
 - If FAISS is not installed, the app safely falls back without vector DB.
+
+
+
+<img width="2784" height="1491" alt="image" src="https://github.com/user-attachments/assets/acbc831a-6395-4ecb-a0fb-8bf79c3e6c46" />
+
